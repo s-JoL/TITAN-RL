@@ -2,7 +2,6 @@
 import gymnasium as gym
 from gymnasium.wrappers import RecordVideo
 import torch
-import time
 from models.simple_policy import SimplePolicy
 import os
 

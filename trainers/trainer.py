@@ -5,6 +5,7 @@ from models.simple_policy import SimplePolicy
 
 class Trainer:
     def __init__(self, state_dim=4, action_dim=2, lr=0.001, gamma=0.99):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.policy = SimplePolicy(state_dim, action_dim)
         self.optimizer = torch.optim.Adam(self.policy.net.parameters(), lr=lr)
         self.gamma = gamma
@@ -21,11 +22,11 @@ class Trainer:
             dict: 训练相关的指标
         """
         # 准备训练数据
-        states = torch.FloatTensor([exp['state'] for exp in batch])
-        actions = torch.LongTensor([exp['action'] for exp in batch])
-        rewards = torch.FloatTensor([exp['reward'] for exp in batch])
-        next_states = torch.FloatTensor([exp['next_state'] for exp in batch])
-        dones = torch.FloatTensor([exp['done'] for exp in batch])
+        states = torch.FloatTensor([exp['state'] for exp in batch]).to(self.device)
+        actions = torch.LongTensor([exp['action'] for exp in batch]).to(self.device)
+        rewards = torch.FloatTensor([exp['reward'] for exp in batch]).to(self.device)
+        next_states = torch.FloatTensor([exp['next_state'] for exp in batch]).to(self.device)
+        dones = torch.FloatTensor([exp['done'] for exp in batch]).to(self.device)
         
         # 计算TD目标
         with torch.no_grad():
