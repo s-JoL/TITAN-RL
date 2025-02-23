@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package buffer;
+
+service BufferService {
+    rpc AddExperience (AddRequest) returns (AddResponse) {}
+    rpc SampleBatch (SampleRequest) returns (SampleResponse) {}
+    rpc GetStatus (StatusRequest) returns (StatusResponse) {}
+}
+
+message AddRequest {
+    bytes experiences = 1;
+    string source_id = 2;
+}
+
+message AddResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message SampleRequest {
+    int32 batch_size = 1;
+}
+
+message SampleResponse {
+    bytes batch_data = 1;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+    int32 current_size = 1;
+    int32 capacity = 2;
+    string status = 3;
+}

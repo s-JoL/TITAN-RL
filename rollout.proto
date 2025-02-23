@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package rollout;
+
+service RolloutService {
+    rpc CollectExperience (CollectRequest) returns (CollectResponse) {}
+    rpc GetStatus (StatusRequest) returns (StatusResponse) {}
+}
+
+message CollectRequest {
+    bytes policy_weights = 1;
+    int32 num_steps = 2;
+    string collection_id = 3;
+}
+
+message CollectResponse {
+    bytes experiences = 1;
+    string collection_id = 2;
+    map<string, float> metrics = 3;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+    int32 num_workers = 1;
+    int32 total_steps = 2;
+    string status = 3;
+}
