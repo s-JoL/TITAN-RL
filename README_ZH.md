@@ -7,6 +7,8 @@
     <p>
 </h4>
 
+该项目的灵感来源于[Kimi k1.5: Scaling Reinforcement Learning with LLMs](https://arxiv.org/html/2501.12599v1)。
+
 TITAN-RL 是一个分布式强化学习框架，它将策略执行、经验存储和训练分离为独立的微服务。这种设计实现了灵活的扩展和高效的资源利用。
 
 ## 架构

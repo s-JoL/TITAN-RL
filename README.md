@@ -7,6 +7,8 @@
     <p>
 </h4>
 
+This project is inspired by the groundbreaking work of [Kimi k1.5: Scaling Reinforcement Learning with LLMs](https://arxiv.org/html/2501.12599v1).
+
 TITAN-RL is a distributed reinforcement learning framework that separates policy rollout, experience storage, and training into independent microservices. This design enables flexible scaling and efficient resource utilization.
 
 ## Architecture
