@@ -1,0 +1,29 @@
+# config/ppo.yaml
+rollout_server:
+  num_workers: 1
+  env_name: "CartPole-v1"
+  epsilon: 0.
+
+policy:
+  path: "models.ppo_policy.PPOPolicy"
+  kwargs:
+    state_dim: 4
+    action_dim: 2
+
+value_network:
+  path: "models.value_function.ValueNetwork"
+  kwargs:
+    state_dim: 4
+
+train:
+  policy_lr: 0.0003
+  value_lr: 0.001
+  gamma: 0.99
+  clip_ratio: 0.2
+  value_loss_coef: 0.5
+  entropy_coef: 0.01
+  ppo_epochs: 4
+  batch_size: 64
+  min_buffer_size: 1000
+
+trainer: trainers.ppo_trainer.PPOTrainer
