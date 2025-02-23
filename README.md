@@ -141,4 +141,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with PyTorch and Gymnasium
 - Monitoring with Weights & Biases
 - Distributed communication via gRPC
-```
