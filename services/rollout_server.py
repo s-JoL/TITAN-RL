@@ -13,6 +13,7 @@ class RolloutServicer(rollout_pb2_grpc.RolloutServiceServicer):
         # 加载配置文件
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
+        print(config)
         self.num_workers = config['rollout_server']['num_workers']
         self.envs = [gym.make(config['rollout_server']['env_name']) for _ in range(self.num_workers)]
         
@@ -48,8 +49,7 @@ class RolloutServicer(rollout_pb2_grpc.RolloutServiceServicer):
         
         for _ in range(request.num_steps):
             # 选择动作, epsilon-greedy
-            action = self.policy.act(state, self.epsilon)
-            
+            action, act_info = self.policy.act(state, self.epsilon)
             # 执行动作
             next_state, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
@@ -62,6 +62,7 @@ class RolloutServicer(rollout_pb2_grpc.RolloutServiceServicer):
                 'next_state': next_state,
                 'done': done
             }
+            experience.update(act_info)
             trajectory_experiences.append(experience)
             trajectory_rewards.append(reward)
             

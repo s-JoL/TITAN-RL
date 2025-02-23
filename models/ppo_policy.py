@@ -28,8 +28,13 @@ class PPOPolicy(nn.Module):
             dist = Categorical(action_probs)
             # 采样动作
             action = dist.sample()
+            # 计算动作的对数概率
+            log_prob = dist.log_prob(action)
             # 返回动作
-            return action.item()
+            return action.item(), {
+                'action_probs': action_probs.cpu().numpy(),
+                'log_prob': log_prob.item(),
+                }
         
     def forward(self, x):
         x = x.to(self.device)

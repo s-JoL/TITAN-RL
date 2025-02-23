@@ -21,12 +21,12 @@ class SimplePolicy(nn.Module):
     
     def act(self, state, eps=0.):
         if random.random() < eps:
-            return random.randint(0, 1)
+            return random.randint(0, 1), {}
         with torch.no_grad():
             state = torch.FloatTensor(state)
             logits = self.forward(state)
             action = torch.argmax(logits).item()
-            return action
+            return action, {}
         
     def forward(self, x):
         x = x.to(self.device)

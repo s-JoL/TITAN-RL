@@ -34,7 +34,7 @@ def visualize_agent(model_path, video_folder='videos', num_episodes=5):
         while True:
             # 选择动作
             with torch.no_grad():
-                action = policy.act(state)
+                action, _ = policy.act(state)
             
             # 执行动作
             next_state, reward, terminated, truncated, _ = env.step(action)
