@@ -2,10 +2,10 @@ import grpc
 import gymnasium as gym
 import pickle
 from concurrent import futures
-import rollout_pb2
-import rollout_pb2_grpc
+from proto import rollout_pb2
+from proto import rollout_pb2_grpc
 
-from models import SimplePolicy
+from models.simple_policy import SimplePolicy
 
 class RolloutServicer(rollout_pb2_grpc.RolloutServiceServicer):
     def __init__(self, num_workers=1):

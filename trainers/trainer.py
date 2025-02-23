@@ -1,7 +1,7 @@
 # trainer.py
 import torch
 import numpy as np
-from models import SimplePolicy
+from models.simple_policy import SimplePolicy
 
 class Trainer:
     def __init__(self, state_dim=4, action_dim=2, lr=0.001, gamma=0.99):

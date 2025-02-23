@@ -2,9 +2,9 @@
 import grpc
 import torch
 import pickle
-import rollout_pb2
-import rollout_pb2_grpc
-from models import SimplePolicy
+from proto import rollout_pb2
+from proto import rollout_pb2_grpc
+from models.simple_policy import SimplePolicy
 
 class RolloutClient:
     def __init__(self, address='localhost:50051'):

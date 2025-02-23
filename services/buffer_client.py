@@ -1,8 +1,8 @@
 # buffer_client.py
 import grpc
 import pickle
-import buffer_pb2
-import buffer_pb2_grpc
+from proto import buffer_pb2
+from proto import buffer_pb2_grpc
 
 class BufferClient:
     def __init__(self, address='localhost:50052'):
@@ -44,8 +44,8 @@ def main():
     
     # 添加一些测试数据
     test_experiences = [
-        {'state': [1, 2, 3, 4], 'action': 1, 'reward': 1.0},
-        {'state': [2, 3, 4, 5], 'action': 0, 'reward': -1.0}
+        {'state': [1, 2, 3, 4], 'action': 1, 'reward': 1.0, 'next_state': [2, 3, 4, 5]},
+        {'state': [2, 3, 4, 5], 'action': 0, 'reward': -1.0, 'next_state': [3, 4, 5, 6]}
     ]
     
     response = client.add_experience(test_experiences)

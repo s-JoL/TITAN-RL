@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import buffer_pb2 as buffer__pb2
+import proto.rollout_pb2 as rollout__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in buffer_pb2_grpc.py depends on'
+        + f' but the generated code in rollout_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class BufferServiceStub(object):
+class RolloutServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,33 +34,22 @@ class BufferServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.AddExperience = channel.unary_unary(
-                '/buffer.BufferService/AddExperience',
-                request_serializer=buffer__pb2.AddRequest.SerializeToString,
-                response_deserializer=buffer__pb2.AddResponse.FromString,
-                _registered_method=True)
-        self.SampleBatch = channel.unary_unary(
-                '/buffer.BufferService/SampleBatch',
-                request_serializer=buffer__pb2.SampleRequest.SerializeToString,
-                response_deserializer=buffer__pb2.SampleResponse.FromString,
+        self.CollectExperience = channel.unary_unary(
+                '/rollout.RolloutService/CollectExperience',
+                request_serializer=rollout__pb2.CollectRequest.SerializeToString,
+                response_deserializer=rollout__pb2.CollectResponse.FromString,
                 _registered_method=True)
         self.GetStatus = channel.unary_unary(
-                '/buffer.BufferService/GetStatus',
-                request_serializer=buffer__pb2.StatusRequest.SerializeToString,
-                response_deserializer=buffer__pb2.StatusResponse.FromString,
+                '/rollout.RolloutService/GetStatus',
+                request_serializer=rollout__pb2.StatusRequest.SerializeToString,
+                response_deserializer=rollout__pb2.StatusResponse.FromString,
                 _registered_method=True)
 
 
-class BufferServiceServicer(object):
+class RolloutServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def AddExperience(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def SampleBatch(self, request, context):
+    def CollectExperience(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -73,36 +62,31 @@ class BufferServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_BufferServiceServicer_to_server(servicer, server):
+def add_RolloutServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'AddExperience': grpc.unary_unary_rpc_method_handler(
-                    servicer.AddExperience,
-                    request_deserializer=buffer__pb2.AddRequest.FromString,
-                    response_serializer=buffer__pb2.AddResponse.SerializeToString,
-            ),
-            'SampleBatch': grpc.unary_unary_rpc_method_handler(
-                    servicer.SampleBatch,
-                    request_deserializer=buffer__pb2.SampleRequest.FromString,
-                    response_serializer=buffer__pb2.SampleResponse.SerializeToString,
+            'CollectExperience': grpc.unary_unary_rpc_method_handler(
+                    servicer.CollectExperience,
+                    request_deserializer=rollout__pb2.CollectRequest.FromString,
+                    response_serializer=rollout__pb2.CollectResponse.SerializeToString,
             ),
             'GetStatus': grpc.unary_unary_rpc_method_handler(
                     servicer.GetStatus,
-                    request_deserializer=buffer__pb2.StatusRequest.FromString,
-                    response_serializer=buffer__pb2.StatusResponse.SerializeToString,
+                    request_deserializer=rollout__pb2.StatusRequest.FromString,
+                    response_serializer=rollout__pb2.StatusResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'buffer.BufferService', rpc_method_handlers)
+            'rollout.RolloutService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('buffer.BufferService', rpc_method_handlers)
+    server.add_registered_method_handlers('rollout.RolloutService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class BufferService(object):
+class RolloutService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def AddExperience(request,
+    def CollectExperience(request,
             target,
             options=(),
             channel_credentials=None,
@@ -115,36 +99,9 @@ class BufferService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/buffer.BufferService/AddExperience',
-            buffer__pb2.AddRequest.SerializeToString,
-            buffer__pb2.AddResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def SampleBatch(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/buffer.BufferService/SampleBatch',
-            buffer__pb2.SampleRequest.SerializeToString,
-            buffer__pb2.SampleResponse.FromString,
+            '/rollout.RolloutService/CollectExperience',
+            rollout__pb2.CollectRequest.SerializeToString,
+            rollout__pb2.CollectResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -169,9 +126,9 @@ class BufferService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/buffer.BufferService/GetStatus',
-            buffer__pb2.StatusRequest.SerializeToString,
-            buffer__pb2.StatusResponse.FromString,
+            '/rollout.RolloutService/GetStatus',
+            rollout__pb2.StatusRequest.SerializeToString,
+            rollout__pb2.StatusResponse.FromString,
             options,
             channel_credentials,
             insecure,

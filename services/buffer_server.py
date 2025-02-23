@@ -3,8 +3,8 @@ import grpc
 import numpy as np
 import pickle
 from concurrent import futures
-import buffer_pb2
-import buffer_pb2_grpc
+from proto import buffer_pb2
+from proto import buffer_pb2_grpc
 from collections import deque
 
 class ReplayBuffer:

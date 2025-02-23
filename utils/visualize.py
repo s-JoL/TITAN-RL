@@ -3,7 +3,7 @@ import gymnasium as gym
 from gymnasium.wrappers import RecordVideo
 import torch
 import time
-from models import SimplePolicy
+from models.simple_policy import SimplePolicy
 import os
 
 def visualize_agent(model_path, video_folder='videos', num_episodes=5):

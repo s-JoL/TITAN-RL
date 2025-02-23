@@ -5,9 +5,9 @@ import pickle
 import wandb
 import numpy as np
 from collections import deque
-from buffer_client import BufferClient
-from rollout_client import RolloutClient
-from trainer import Trainer
+from services.buffer_client import BufferClient
+from services.rollout_client import RolloutClient
+from trainers.trainer import Trainer
 
 class MainLoop:
     def __init__(self,
