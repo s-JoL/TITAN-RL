@@ -36,7 +36,7 @@ def main():
     
     # 收集一些经验
     experiences, metrics = client.collect_experience(
-        policy_weights=policy.net.state_dict(),
+        policy_weights=policy.state_dict(),
         num_steps=200
     )
     

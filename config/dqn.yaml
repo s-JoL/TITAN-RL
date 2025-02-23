@@ -1,0 +1,17 @@
+rollout_server:
+  num_workers: 1
+  env_name: "CartPole-v1"
+
+policy:
+  path: "models.simple_policy.SimplePolicy"
+  kwargs:
+    state_dim: 4
+    action_dim: 2
+
+train:
+  lr: 0.001
+  gamma: 0.99
+  batch_size: 64
+  min_buffer_size: 1000
+
+trainer: trainers.dqn_trainer.DQNTrainer

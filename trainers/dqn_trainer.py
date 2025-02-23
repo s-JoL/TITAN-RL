@@ -1,14 +1,26 @@
 # trainer.py
+import yaml
 import torch
-import numpy as np
-from models.simple_policy import SimplePolicy
+import importlib
 
-class Trainer:
-    def __init__(self, state_dim=4, action_dim=2, lr=0.001, gamma=0.99):
+class DQNTrainer:
+    def __init__(self, config_path='config/dqn.yaml'):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.policy = SimplePolicy(state_dim, action_dim)
-        self.optimizer = torch.optim.Adam(self.policy.net.parameters(), lr=lr)
-        self.gamma = gamma
+        # 加载配置文件
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        # 从配置中获取策略信息
+        policy_path = config['policy']['path']
+        policy_kwargs = config['policy']['kwargs']
+        
+        # 从字符串路径导入策略类
+        module_name, class_name = policy_path.rsplit('.', 1)
+        module = importlib.import_module(module_name)
+        policy_class = getattr(module, class_name)
+        self.policy = policy_class(**policy_kwargs)
+
+        self.optimizer = torch.optim.Adam(self.policy.parameters(), lr=config['train']['lr'])
+        self.gamma = config['train']['gamma']
         
     def train_step(self, batch):
         """执行一步训练
@@ -30,11 +42,11 @@ class Trainer:
         
         # 计算TD目标
         with torch.no_grad():
-            next_q_values = self.policy.net(next_states).max(1)[0]
+            next_q_values = self.policy(next_states).max(1)[0]
             targets = rewards + self.gamma * (1 - dones) * next_q_values
             
         # 计算当前Q值
-        q_values = self.policy.net(states)
+        q_values = self.policy(states)
         current_q_values = q_values.gather(1, actions.unsqueeze(1)).squeeze()
         
         # 计算损失并更新
@@ -45,26 +57,26 @@ class Trainer:
         
         # 返回训练指标
         return {
-            'loss': loss.item(),
-            'avg_q_value': q_values.mean().item(),
-            'avg_target': targets.mean().item(),
-            'max_q_value': q_values.max().item(),
-            'min_q_value': q_values.min().item(),
+            'train/loss': loss.item(),
+            'train/avg_q_value': q_values.mean().item(),
+            'train/avg_target': targets.mean().item(),
+            'train/max_q_value': q_values.max().item(),
+            'train/min_q_value': q_values.min().item(),
         }
     
     def get_policy_weights(self):
         """获取当前策略的权重"""
-        return self.policy.net.state_dict()
+        return self.policy.state_dict()
     
     def save_checkpoint(self, path):
         """保存检查点"""
         torch.save({
-            'policy_state_dict': self.policy.net.state_dict(),
+            'policy_state_dict': self.policy.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
         }, path)
     
     def load_checkpoint(self, path):
         """加载检查点"""
         checkpoint = torch.load(path)
-        self.policy.net.load_state_dict(checkpoint['policy_state_dict'])
+        self.policy.load_state_dict(checkpoint['policy_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])

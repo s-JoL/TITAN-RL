@@ -1,39 +1,39 @@
 # main.py
 import time
-import threading
-import pickle
+import yaml
 import wandb
+import argparse
+import importlib
+import threading
 import numpy as np
 from collections import deque
 from services.buffer_client import BufferClient
 from services.rollout_client import RolloutClient
-from trainers.trainer import Trainer
 
 class MainLoop:
     def __init__(self,
+                 config_path,
                  buffer_address='localhost:50052',
-                 rollout_address='localhost:50051',
-                 min_buffer_size=1000,
-                 batch_size=32):
+                 rollout_address='localhost:50051',):
+        # 加载配置文件
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
         # 初始化wandb
         wandb.init(
             project="titan-rl",
-            config={
-                "env": "CartPole-v1",
-                "algorithm": "DQN",
-                "min_buffer_size": min_buffer_size,
-                "batch_size": batch_size,
-                "gamma": 0.99,
-                "lr": 0.001
-            }
+            config=config
         )
         
         self.buffer_client = BufferClient(buffer_address)
         self.rollout_client = RolloutClient(rollout_address)
-        self.trainer = Trainer(state_dim=4, action_dim=2)
+        # 从字符串路径导入策略类
+        module_name, class_name = config['trainer'].rsplit('.', 1)
+        module = importlib.import_module(module_name)
+        trainer_class = getattr(module, class_name)
+        self.trainer = trainer_class(config_path)
         
-        self.min_buffer_size = min_buffer_size
-        self.batch_size = batch_size
+        self.min_buffer_size = config['train']['min_buffer_size']
+        self.batch_size = config['train']['batch_size']
         self.running = False
         
         # 训练统计
@@ -101,16 +101,9 @@ class MainLoop:
             batch = self.buffer_client.sample_batch(self.batch_size)
             metrics = self.trainer.train_step(batch)
             self.training_steps += 1
-            
+            metrics['training_steps'] = self.training_steps
             # 记录训练相关的指标
-            wandb.log({
-                "train/loss": float(metrics['loss']),  # 确保是Python float
-                "train/avg_q_value": float(metrics['avg_q_value']),
-                "train/max_q_value": float(metrics['max_q_value']),
-                "train/min_q_value": float(metrics['min_q_value']),
-                "train/avg_target": float(metrics['avg_target']),
-                "training_steps": self.training_steps,
-            }, step=self.total_steps)
+            wandb.log(metrics, step=self.total_steps)
             
             # 每100步打印一次状态
             if self.training_steps % 100 == 0:
@@ -119,8 +112,6 @@ class MainLoop:
                 print(f"Total environment steps: {self.total_steps}")
                 print(f"Episodes: {self.total_episodes}")
                 print(f"Mean 100 episode reward: {mean_reward:.2f}")
-                print(f"Loss: {float(metrics['loss']):.4f}")
-                print(f"Average Q-value: {float(metrics['avg_q_value']):.4f}")
                 
                 # 保存检查点
                 self.trainer.save_checkpoint('checkpoint.pth')
@@ -161,7 +152,16 @@ class MainLoop:
         wandb.finish()
 
 def main():
-    loop = MainLoop()
+    # 创建命令行参数解析器
+    parser = argparse.ArgumentParser(description='Rollout Server')
+    parser.add_argument('--config', 
+                       type=str,
+                       default='config/dqn.yaml',
+                       help='Path to configuration file')
+    
+    # 解析命令行参数
+    args = parser.parse_args()
+    loop = MainLoop(config_path=args.config)
     loop.run()
 
 if __name__ == '__main__':
