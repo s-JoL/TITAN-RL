@@ -26,6 +26,8 @@ class RolloutServicer(rollout_pb2_grpc.RolloutServiceServicer):
         policy_class = getattr(module, class_name)
         self.policy = policy_class(**policy_kwargs)
         self.total_steps = 0
+        self.epsilon = config['rollout_server']['epsilon']
+        self.gamma = config['train']['gamma']  # Add gamma parameter
         
     def CollectExperience(self, request, context):
         # 更新策略权重
@@ -36,19 +38,23 @@ class RolloutServicer(rollout_pb2_grpc.RolloutServiceServicer):
         total_reward = 0
         steps_this_collect = 0
         
-        # 使用第一个环境收集数据(这里简化为单个环境)
+        # 使用第一个环境收集数据
         env = self.envs[0]
         state, _ = env.reset()
         
+        # 用于存储单个轨迹的经验
+        trajectory_experiences = []
+        trajectory_rewards = []
+        
         for _ in range(request.num_steps):
-            # 选择动作
-            action = self.policy.act(state)
+            # 选择动作, epsilon-greedy
+            action = self.policy.act(state, self.epsilon)
             
             # 执行动作
             next_state, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
             
-            # 记录经验
+            # 记录经验（暂时不包含轨迹信息）
             experience = {
                 'state': state,
                 'action': action,
@@ -56,16 +62,44 @@ class RolloutServicer(rollout_pb2_grpc.RolloutServiceServicer):
                 'next_state': next_state,
                 'done': done
             }
-            experiences.append(experience)
+            trajectory_experiences.append(experience)
+            trajectory_rewards.append(reward)
             
             total_reward += reward
             steps_this_collect += 1
             
-            if done:
+            if done or len(trajectory_experiences) == request.num_steps:
+                # 计算轨迹相关的信息
+                trajectory_length = len(trajectory_experiences)
+                # 计算折扣后的轨迹总奖励
+                discounted_total_reward = 0
+                for t, r in enumerate(trajectory_rewards):
+                    discounted_total_reward += (self.gamma ** t) * r
+                
+                # 计算每个时间步的未来折扣奖励
+                future_rewards = []
+                cumulative = 0
+                for t, r in enumerate(reversed(trajectory_rewards)):
+                    cumulative = r + self.gamma * cumulative
+                    future_rewards.insert(0, cumulative)
+                
+                # 更新轨迹中的每个经验
+                for step_idx, (exp, future_reward) in enumerate(zip(trajectory_experiences, future_rewards)):
+                    exp.update({
+                        'trajectory_total_reward': discounted_total_reward,  # 整条轨迹的总奖励
+                        'future_reward': future_reward,  # 从当前时间步开始的未来奖励总和
+                        'trajectory_length': trajectory_length,  # 轨迹总长度
+                        'current_step': step_idx  # 当前是轨迹中的第几步
+                    })
+                    experiences.append(exp)
+                
+                # 重置轨迹相关的列表
+                trajectory_experiences = []
+                trajectory_rewards = []
                 state, _ = env.reset()
             else:
                 state = next_state
-                
+                    
         self.total_steps += steps_this_collect
         
         # 序列化经验数据

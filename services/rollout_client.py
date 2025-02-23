@@ -45,7 +45,7 @@ def main():
     
     # 打印第一条经验数据
     print("\nFirst experience:")
-    print(experiences[0])
+    print(experiences[20])
 
 if __name__ == '__main__':
     main()

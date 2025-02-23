@@ -20,8 +20,8 @@ def visualize_agent(model_path, video_folder='videos', num_episodes=5):
     # 创建策略网络并加载权重
     policy = SimplePolicy(state_dim=4, action_dim=2)
     checkpoint = torch.load(model_path)
-    policy.net.load_state_dict(checkpoint['policy_state_dict'])
-    policy.net.eval()
+    policy.load_state_dict(checkpoint['policy_state_dict'])
+    policy.eval()
     
     episode_rewards = []
     episode_lengths = []

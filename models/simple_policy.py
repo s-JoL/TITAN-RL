@@ -1,5 +1,6 @@
 import torch
 import pickle
+import random
 from torch import nn
 
 class SimplePolicy(nn.Module):
@@ -18,7 +19,9 @@ class SimplePolicy(nn.Module):
             state_dict = pickle.loads(weights)
             self.load_state_dict(state_dict)
     
-    def act(self, state):
+    def act(self, state, eps=0.):
+        if random.random() < eps:
+            return random.randint(0, 1)
         with torch.no_grad():
             state = torch.FloatTensor(state)
             logits = self.forward(state)
